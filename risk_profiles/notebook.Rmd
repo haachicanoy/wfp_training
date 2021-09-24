@@ -31,18 +31,19 @@ R options
 options(warn = -1, scipen = 999)
 
 # Sourcing functions
-source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/_main_functions.R')         # Main functions
-source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/_get_soil_data.R')          # Get soil data
-source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/_calc_indices.R')           # Calculating agro-indices
-source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/_calc_indices2.R')          # Calculating agro-indices
-source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/_calc_spi_drought.R')       # SPI calculation
-source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/time_series_plot.R')        # Time series graphs
-source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/maps.R')                    # Maps
-source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/time_series_plot_region.R') # Time series graphs by region
-source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/climatology_plot.R')        # Climatology graph. 
-source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/elv_map.R')                 # Elevation map. 
-source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/summary.R')                 # summary indices (mean, median...)
-source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/migration/_get_climate4regions_districts.R') # Filter climate for districts of interest
+source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/_main_functions.R')
+source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/_get_soil_data.R')
+source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/_get_his_clim.R')
+source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/_get_dws_fut_clim.R')
+source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/_get_bc_fut_clim.R')
+source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/_calc_indices.R')
+source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/_calc_spi_drought.R')
+#source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/time_series_plot.R')        # Time series graphs
+#source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/maps.R')                    # Maps
+#source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/time_series_plot_region.R') # Time series graphs by region
+#source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/climatology_plot.R')        # Climatology graph. 
+#source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/elv_map.R')                 # Elevation map. 
+#source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/summary.R')                 # summary indices (mean, median...)
 ```
 
 Root path definition
