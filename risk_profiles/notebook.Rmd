@@ -1,0 +1,222 @@
+---
+title: "Climate Risk Profiles - Training notebook"
+output: html_notebook
+author: A. Esquivel, C. Saavedra, H. Achicanoy, A. Ghosh, J. Ramirez-Villegas
+date: September, 2021
+---
+
+```{=html}
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+```
+
+------------------------------------------------------------------------
+
+# Introduction
+
+This R Notebook performs the execution of Climate Risk Profiles methodology. All the code is available on the following [GitHub repository]()
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.
+
+R options
+
+```{r,echo=TRUE}
+options(warn = -1, scipen = 999)
+
+# Sourcing functions
+source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/_main_functions.R')         # Main functions
+source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/_get_soil_data.R')          # Get soil data
+source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/_calc_indices.R')           # Calculating agro-indices
+source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/_calc_indices2.R')          # Calculating agro-indices
+source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/_calc_spi_drought.R')       # SPI calculation
+source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/time_series_plot.R')        # Time series graphs
+source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/maps.R')                    # Maps
+source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/time_series_plot_region.R') # Time series graphs by region
+source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/climatology_plot.R')        # Climatology graph. 
+source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/elv_map.R')                 # Elevation map. 
+source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/summary.R')                 # summary indices (mean, median...)
+source('https://raw.githubusercontent.com/CIAT-DAPA/WFP-profiles/main/migration/_get_climate4regions_districts.R') # Filter climate for districts of interest
+```
+
+Root path definition
+
+```{r}
+OSys <<- Sys.info()[1]
+root <<- switch(OSys,
+                'Linux'   = '/dapadfs/workspace_cluster_14/WFP_ClimateRiskPr',
+                'Windows' = '//catalogue/Workspace14/WFP_ClimateRiskPr/Harold/WFP_ClimateRiskPr')
+```
+
+Country parameters
+
+```{r}
+country <- 'Burundi'
+iso     <- 'BDI'
+seasons <- list(s1 = c(2:7), s2 = c(9:12,1:2))
+```
+
+# Get input data
+
+## Get soil
+
+```{r}
+# Output file
+fl <- paste0(root,"/1.Data/soil/",iso,"/soilcp_data.fst")
+# Function to obtain soil data
+get_soil(iso = iso, outfile = fl)
+# Load the resulting file
+soil <- tidyfst::parse_fst(fl) %>% base::as.data.frame()
+library(DT)
+# Explore the output
+DT::datatable(soil)
+# Visualize the output:
+# scp: soil capacity
+# ssat: soil saturation point
+soil %>% ggplot2::ggplot(aes(x, y, fill = scp)) + ggplot2::geom_tile() + ggplot2::coord_equal() + ggplot2::theme_bw() + ggplot2::scale_fill_continuous(type = 'viridis')
+```
+
+## Get historical climate
+
+```{r}
+# Output file
+fl <- paste0(root,"/1.Data/observed_data/",iso,"/",iso,".fst")
+# Function to extract daily historical climate data
+get_his_clim(iso = iso, outfile = fl)
+# Load the first 10 rows from the full table
+hclim <- tidyfst::parse_fst(fl) %>% tidyfst::slice_fst(1:10) %>% base::as.data.frame()
+#hclim <- tidyfst::parse_fst(fl) %>% base::as.data.frame()
+# Explore the output
+DT::datatable(hclim)
+# hclim %>% dplyr::select(id, x, y, tmax) %>% dplyr::group_by(id, x, y) %>% dplyr::summarise(tmax = mean(tmax, na.rm = T)) %>% ggplot2::ggplot(aes(x, y, fill = tmax)) + ggplot2::geom_tile() + ggplot2::coord_equal() + ggplot2::theme_bw() + ggplot2::scale_fill_continuous(type = 'viridis')
+```
+
+## Get future climate
+
+### Apply downscaling to future data
+
+```{r}
+# Output file
+gcms <- c('ACCESS-ESM1-5', 'EC-Earth3-Veg','INM-CM5-0','MPI-ESM1-2-HR','MRI-ESM2-0')
+periods <- c('2021-2040','2041-2060')
+# Function to extract daily future downscaled climate data per GCM and period
+for(gcm in gcms){
+  for(period in periods){
+    fl <- paste0(root,"/1.Data/future_data/",gcm,"/",iso,"/downscale/",period,"/",iso,".fst")
+    cat(paste0('Performing downscaling for model: ',gcm,' and period: ',period))
+    get_dws_fut_clim(iso = iso,
+                     gcm = gcm,
+                     period = period,
+                     ncores = 10,
+                     outfile = fl)
+  }
+}
+# Load the resulting file
+fl <- paste0(root,"/1.Data/future_data/ACCESS-ESM1-5/",iso,"/downscale/2021-2040/",iso,".fst")
+fclim <- tidyfst::parse_fst(fl) %>% tidyfst::slice_fst(1:10) %>% base::as.data.frame()
+# Explore the output
+DT::datatable(fclim)
+```
+
+### Apply bias-correction to future climate
+
+```{r}
+# Output file
+gcms <- c('ACCESS-ESM1-5', 'EC-Earth3-Veg','INM-CM5-0','MPI-ESM1-2-HR','MRI-ESM2-0')
+periods <- c('2021-2040','2041-2060')
+# Function to obtain daily future bias-corrected climate data per GCM and period
+for(gcm in gcms){
+  for(period in periods){
+    fl <- paste0(root,"/1.Data/future_data/",gcm,"/",iso,"/bias_corrected/",period,"/",iso,".fst")
+    cat(paste0('Performing bias-correction for model: ',gcm,' and period: ',period))
+    get_bc_fut_clim(iso = iso,
+                    gcm = gcm,
+                    period = period,
+                    ncores = 10,
+                    outfile = fl)
+  }
+}
+# Load the resulting file
+fl <- paste0(root,"/1.Data/future_data/ACCESS-ESM1-5/",iso,"/bias_corrected/2021-2040/",iso,".fst")
+fclim <- tidyfst::parse_fst(fl) %>% tidyfst::slice_fst(1:10) %>% base::as.data.frame()
+# Explore the output
+DT::datatable(fclim)
+```
+
+# Compute climate indices
+
+## Historical
+
+```{r}
+infile <- paste0(root,"/1.Data/observed_data/",iso,"/",iso,".fst")
+outfile <- paste0(root,"/7.Results/",country,"/past/",iso,"_indices.fst")
+spi_out <- paste0(root,"/7.Results/",country,"/past/",iso,"_spi.fst")
+calc_indices(iso     = iso,
+             seasons = seasons,
+             ncores  = 15,
+             climate = infile,
+             outfile = outfile,
+             spi_out = spi_out)
+# How much area per municipality is on average subject to ‘Major droughts’ (SPI < -1.5)
+infile  <- paste0(root,"/7.Results/",country,"/past/",iso,"_spi.fst")
+outfile <- paste0(root,'/7.Results/',country,'/past/',iso,'_spi_drought.fst')
+calc_spi_drought(spi_data = infile,
+                 output   = outfile,
+                 country  = country,
+                 iso      = iso,
+                 seasons  = seasons)
+# Load the resulting indices file
+fl <- paste0(root,"/7.Results/",country,"/past/",iso,"_indices.fst")
+indices <- tidyfst::parse_fst(fl) %>% base::as.data.frame()
+```
+
+```{r}
+library(DT)
+# Explore the output
+DT::datatable(indices[1:10,])
+# Visualize the output for one index-one year:
+indices %>% dplyr::filter(year == 2019) %>% ggplot2::ggplot(aes(x, y, fill = ATR)) + ggplot2::geom_tile() + ggplot2::coord_equal() + ggplot2::theme_bw() + ggplot2::scale_fill_continuous(type = 'viridis') + ggplot2::facet_wrap(~season)
+# Visualize the output for time series
+indices %>% dplyr::filter(id == 7499376) %>% ggplot2::ggplot(aes(x = year, y = ATR, colour = factor(season))) + ggplot2::geom_line() + ggplot2::theme_bw()
+```
+
+## Future
+
+```{r}
+models  <- c('ACCESS-ESM1-5', 'EC-Earth3-Veg','INM-CM5-0','MPI-ESM1-2-HR','MRI-ESM2-0')
+periods <- c('2021-2040','2041-2060')
+for(m in models){
+  for(p in periods){
+    infile  <- paste0(root,"/1.Data/future_data/",m,"/",iso,"/bias_corrected/",p,"/",iso,".fst")
+    soilfl  <- paste0(root,"/1.Data/soil/",iso,"/soilcp_data.fst")
+    outfile <- paste0(root,"/7.Results/",country,"/future/",m,"/",p,"/",iso,"_indices.fst")
+    spi_out <- paste0(root,"/7.Results/",country,"/future/",m,"/",p,"/",iso,"_spi.fst")
+    calc_indices(climate = infile,
+                 soil    = soilfl,
+                 seasons = seasons,
+                 subset  = F,
+                 ncores  = 15,
+                 outfile = outfile,
+                 spi_out = spi_out)
+    infile  <- paste0(root,"/7.Results/",country,"/future/",m,"/",p,"/",iso,"_spi.fst")
+    outfile <- paste0(root,"/7.Results/",country,"/future/",m,"/",p,"/",iso,"_spi_drought.fst")
+    calc_spi_drought(spi_data = infile,
+                     output   = outfile,
+                     country  = country,
+                     iso      = iso,
+                     seasons  = seasons)
+  }
+}
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
