@@ -51,7 +51,7 @@ Root path definition
 ```{r}
 OSys <<- Sys.info()[1]
 root <<- switch(OSys,
-                'Linux'   = '/dapadfs/workspace_cluster_14/WFP_ClimateRiskPr',
+                'Linux'   = '/home/jovyan/work',
                 'Windows' = '//catalogue/Workspace14/WFP_ClimateRiskPr/Harold/WFP_ClimateRiskPr')
 ```
 
@@ -178,13 +178,16 @@ indices <- tidyfst::parse_fst(fl) %>% base::as.data.frame()
 ```
 
 ```{r}
+# Selected pixel
+#      id      x         y
+# 7650603 30.125 -3.125001
 library(DT)
 # Explore the output
 DT::datatable(indices[1:10,])
 # Visualize the output for one index-one year:
-indices %>% dplyr::filter(year == 2019) %>% ggplot2::ggplot(aes(x, y, fill = ATR)) + ggplot2::geom_tile() + ggplot2::coord_equal() + ggplot2::theme_bw() + ggplot2::scale_fill_continuous(type = 'viridis') + ggplot2::facet_wrap(~season)
+indices %>% dplyr::filter(year == 2019) %>% ggplot2::ggplot(aes(x, y, fill = ATR)) + ggplot2::geom_tile() + ggplot2::coord_equal() + ggplot2::theme_bw() + ggplot2::scale_fill_continuous(type = 'viridis') + ggplot2::facet_wrap(~season) + ggplot2::geom_point(data = indices %>% dplyr::filter(id == 7650603), aes(x, y), colour = 'red', size = 2.5)
 # Visualize the output for time series
-indices %>% dplyr::filter(id == 7499376) %>% ggplot2::ggplot(aes(x = year, y = ATR, colour = factor(season))) + ggplot2::geom_line() + ggplot2::theme_bw()
+indices %>% dplyr::filter(id == 7650603) %>% ggplot2::ggplot(aes(x = year, y = ATR, colour = factor(season))) + ggplot2::geom_line() + ggplot2::theme_bw()
 ```
 
 ## Future

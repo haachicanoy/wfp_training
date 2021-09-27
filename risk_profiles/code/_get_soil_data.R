@@ -26,7 +26,7 @@ get_soil <- function(iso = iso, outfile = './soilcp_data.fst'){
     
     # Load CHIRPS template
                            #//catalogue/BaseLineDataCluster01/observed/gridded_products/chirps/daily/chirps-v2.0.2020.01.01.tif
-    tmp <- raster::raster("//CATALOGUE/Workspace14/WFP_ClimateRiskPr/1.Data/chirps-v2.0.2020.01.01.tif")
+    tmp <- raster::raster(paste0(root,"/1.Data/chirps-v2.0.2020.01.01.tif"))
     
     # Transform crd to raster study area
     r <- raster::rasterFromXYZ(xyz = crd[,c('x','y')] %>% unique %>% dplyr::mutate(vals = 1),

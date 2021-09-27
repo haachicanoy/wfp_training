@@ -16,6 +16,12 @@ get_dws_fut_clim <- function(iso = iso,
                              outfile = paste0('./',iso,'.fst')){
   if(!file.exists(outfile)){
     
+    suppressMessages(library(pacman))
+    suppressMessages(pacman::p_load(fuzzyjoin,terra,tidyverse,raster,sf,data.table,fst))
+    if (packageVersion("terra") < "1.1.0"){warning("terra version should be at least 1.1.0, \ninstall the the most updated version remotes::install_github('rspatial/terra')")}
+    
+    
+    
   } else {
     cat('Future downscaled climate data already calculated.\n')
   }
