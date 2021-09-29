@@ -78,8 +78,8 @@ library(DT)
 # Explore the output
 DT::datatable(soil)
 # Visualize the output:
-# scp: soil capacity
-# ssat: soil saturation point
+# scp: soil water holding capacity
+# ssat: volumetric moisture content at saturation
 soil %>% ggplot2::ggplot(aes(x, y, fill = scp)) + ggplot2::geom_tile() + ggplot2::coord_equal() + ggplot2::theme_bw() + ggplot2::scale_fill_continuous(type = 'viridis')
 ```
 

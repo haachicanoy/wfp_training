@@ -9,11 +9,12 @@ suppressMessages(library(pacman))
 suppressMessages(pacman::p_load(caTools,SPEI,tidyverse,raster,ncdf4,sf,future,future.apply,furrr,lubridate,glue,vroom,sp,fst,compiler))
 
 # Input parameters:
-#   climate: path or data frame with the climate data. This file must exists
+#   iso: country ISO 3 code
 #   seasons: list object specifying the months where a season take
 #     place. Examples:
 #       One season:  seasons = list(s1 = 2:5) # Feb-May
 #       Two seasons: seasons = list(s1 = 2:5, s2 = c(10:12,1)) # Feb-May and Oct-Jan
+#   climate: path and name of the input climate data
 #   ncores: number of cores to run the code in parallel per pixel
 #   outfile: output file path (all indices)
 #   spi_out: output file path (SPI index)
