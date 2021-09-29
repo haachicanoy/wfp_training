@@ -17,14 +17,6 @@ date: September, 2021
 
 ------------------------------------------------------------------------
 
-# Introduction
-
-This R Notebook performs the execution of Climate Risk Profiles methodology. All the code is available on the following [GitHub repository]()
-
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.
-
 R options
 
 ```{r,echo=TRUE}
@@ -38,12 +30,6 @@ source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_pro
 source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/_get_bc_fut_clim.R')
 source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/_calc_indices.R')
 source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/_calc_spi_drought.R')
-#source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/time_series_plot.R')        # Time series graphs
-#source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/maps.R')                    # Maps
-#source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/time_series_plot_region.R') # Time series graphs by region
-#source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/climatology_plot.R')        # Climatology graph. 
-#source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/elv_map.R')                 # Elevation map. 
-#source('https://raw.githubusercontent.com/haachicanoy/wfp_training/main/risk_profiles/code/summary.R')                 # summary indices (mean, median...)
 ```
 
 Root path definition
@@ -219,8 +205,4 @@ for(m in models){
 }
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+End.

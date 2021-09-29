@@ -22,12 +22,12 @@ fut_gcm <- tidyfst::parse_fst(path = fut_gcm) %>%
   tidyfst::filter_fst(id == 7650603) %>%
   base::as.data.frame()
 
-prec_fit <- qmap::fitQmap(obs     = his_obs$prec,
-                          mod     = his_gcm$prec,
-                          method  = "RQUANT",
-                          qstep   = 0.01,
-                          wet.day = TRUE,
-                          na.rm   = TRUE)
+# prec_fit <- qmap::fitQmap(obs     = his_obs$prec,
+#                           mod     = his_gcm$prec,
+#                           method  = "RQUANT",
+#                           qstep   = 0.01,
+#                           wet.day = TRUE,
+#                           na.rm   = TRUE)
 tmax_fit <- qmap::fitQmap(obs     = his_obs$tmax,
                           mod     = his_gcm$tmax,
                           method  = "RQUANT",
@@ -36,13 +36,14 @@ tmax_fit <- qmap::fitQmap(obs     = his_obs$tmax,
                           na.rm   = TRUE)
 
 bc_fut_gcm <- fut_gcm
-bc_fut_gcm$prec <- qmap::doQmap(x = fut_gcm$prec, prec_fit, type = "linear")
+# bc_fut_gcm$prec <- qmap::doQmap(x = fut_gcm$prec, prec_fit, type = "linear")
 bc_fut_gcm$tmax <- qmap::doQmap(x = fut_gcm$tmax, tmax_fit, type = "linear")
 
 # Daily time series
 plot(his_obs$tmax[1:365], ty = 'l', ylim = c(20,35), xlab = 'Day of the year', ylab = 'Tmax daily-one year') # Observed
 lines(fut_gcm$tmax[1:365], col = 2)    # Downscaled
 lines(bc_fut_gcm$tmax[1:365], col = 4) # Bias-corrected
+legend(10, 27, legend=c("observed", "downscaled", "bias-corrected"), lty = 1, col=c(1,2,4), cex=0.8, box.lty=0)
 
 # Time series
 mx_obs <- ts(data = his_obs$tmax, start = c(1981, 1), frequency = 365)
